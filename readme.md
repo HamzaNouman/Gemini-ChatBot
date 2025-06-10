@@ -2,42 +2,22 @@
 
 ## How to make backend work
 
-2. create backend folder and navigate to it
-```bash
-cd backend
-```
-
-2. For backend: install pipenv
+1. For backend: install pipenv
 ```bash
 pip install pipenv
 ```
 
-2. To create a new env for the project runs:
+2. Create the virtual environment
 ```bash
 pipenv install
 ```
 
-2. Install the dependencies:
+3. Install Flask web framework in the virtual enviroment
 ```bash
 pipenv install flask google.genai
 ```
 
-5. Install pipenv to create a new environment
-```bash
-pip install pipenv
-```
-
-6. Create the virtual environment
-```bash
-pipenv install
-```
-
-7. Install Flask web framework in the virtual enviroment
-```bash
-pipenv install flask
-```
-
-8. Add the dependency for the Google Cloud SDK or for HTTP requests
+4. Add the dependency for the Google Cloud SDK or for HTTP requests
 ```bash
 pipenv install google-cloud-aiplatform requests
 ```
@@ -45,7 +25,6 @@ pipenv install google-cloud-aiplatform requests
 ## How to make frontend work
 
 1. You have to install node in your machine: ```https://nodejs.org/en/download```
-
 
 2. Install node with react-app in the frontend file
 ```bash
