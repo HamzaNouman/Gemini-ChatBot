@@ -1,7 +1,3 @@
 venv/
 .env
-gemini/
-test-1.py
-frontend/
-readme.md
-requirements.txt
+
