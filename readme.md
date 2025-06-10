@@ -7,19 +7,28 @@
 git clone https://github.com/HamzaNouman/Gemini-ChatBot
 ```
 
-2. Create a venv
+2. create backend folder and navigate to it
 ```bash
-python -m venv venv
+cd backend
 ```
 
-3. Install the requirments
+2. For backend: install pipenv
 ```bash
-pip install -r requirements.txt
+pip install pipenv
 ```
 
-4. Create a .env file and add your gemini api key
+2. To create a new env for the project runs:
 ```bash
-.env=YOUR_API_KEY_HERE
+pipenv install
+```
+
+2. Install the dependencies:
+```bash
+pipenv install flask google.genai
 ```
 
 
+2. For frontend: install node
+```bash
+npx create-react-app frontend
+```
