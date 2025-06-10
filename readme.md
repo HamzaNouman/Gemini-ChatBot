@@ -27,6 +27,27 @@ pipenv install
 pipenv install flask google.genai
 ```
 
+5. Install pipenv to create a new environment
+```bash
+pip install pipenv
+```
+
+6. Create the virtual environment
+```bash
+pipenv install
+```
+
+7. Install Flask web framework in the virtual enviroment
+```bash
+pipenv install flask
+```
+
+8. Add the dependency for the Google Cloud SDK or for HTTP requests
+```bash
+pipenv install google-cloud-aiplatform requests
+```
+
+
 
 2. For frontend: install node
 ```bash
