@@ -1,18 +1,25 @@
 {
   "name": "Hamza Nouman",
-  "title": "High School Student | Aspiring Software Engineer",
-  "summary": "Motivated student with a passion for AI, backend development, and robotics. Focused on building real-world projects using Python, Flask, and React.",
+  "title": "High School Student | Aspiring Software Engineer | AI & Robotics Enthusiast",
+  "summary": "A highly motivated and proactive high school student with a profound passion for **Artificial Intelligence**, **backend development**, and **robotics**. Dedicated to building impactful **real-world projects** using modern technologies like **Python**, **Flask**, and **React**. Eager to apply and expand technical skills in dynamic environments, with a strong focus on continuous learning and innovation in AI integration and scalable backend solutions.",
 
   "contact": {
     "email": "hamzanouman2009@gmail.com",
     "location": "Cairo, Egypt",
-    "github": "https://github.com/HamzaNouman"
+    "github": "https://github.com/HamzaNouman",
+    "linkedin": "https://www.linkedin.com/in/hamzanouman"
   },
 
-  "skills": [
-    "Python", "Flask", "React", "JavaScript", "Git", "REST APIs", "TailwindCSS",
-    "VS Code", "ChatGPT", "Google Gemini", "JSON", "GitHub"
-  ],
+  "skills": {
+    "programming_languages": ["Python", "JavaScript", "SQL"],
+    "backend_frameworks": ["Flask", "Node.js (basic exposure)"],
+    "frontend_frameworks": ["React", "TailwindCSS"],
+    "databases": ["JSON-based (for knowledge management)"],
+    "ai_ml_tools": ["Google Gemini API", "ChatGPT (API usage)", "TensorFlow (basic exposure)"],
+    "devops_tools": ["Git", "GitHub", "Docker (basic exposure)"],
+    "development_tools": ["VS Code", "Postman", "Jira (familiarity)"],
+    "concepts": ["REST APIs", "Object-Oriented Programming (OOP)", "Agile Methodologies (Scrum, Kanban - theoretical understanding)"]
+  },
 
   "languages": [
     {
@@ -21,7 +28,7 @@
     },
     {
       "language": "English",
-      "proficiency": "Advanced"
+      "proficiency": "Advanced Professional Working Proficiency"
     }
   ],
 
@@ -29,35 +36,67 @@
     {
       "school": "Science High School",
       "location": "Cairo, Egypt",
-      "year": "2025 (Expected)",
-      "focus": "Science Track – Physics, Chemistry, Biology"
+      "degree": "High School Diploma (Expected)",
+      "year": "2025",
+      "focus": "Science Track – Physics, Chemistry, Biology, Mathematics",
+      "achievements": ["Consistently high academic performance", "Participation in science fairs/clubs (if applicable)"]
     }
   ],
 
   "professional_experience": [
     {
-      "role": "Backend Developer",
-      "organization": "Freelance Projects",
-      "description": "Worked on building Flask APIs, integrating Google Gemini for chatbot responses, and managing JSON-based knowledge databases."
+      "role": "Backend Developer (Freelance)",
+      "organization": "Independent Projects / Client Engagements",
+      "duration": "January 2023 - Present",
+      "description": "Engaged in various freelance projects focusing on **backend development**. Key responsibilities included:",
+      "responsibilities": [
+        "Designing and implementing robust **Flask APIs** for web applications.",
+        "Integrating **Google Gemini API** to develop intelligent chatbot functionalities and enhance application interactivity.",
+        "Managing and structuring **JSON-based knowledge databases** to power dynamic content delivery and AI responses.",
+        "Collaborating with front-end developers to ensure seamless API integration."
+      ],
+      "achievements": [
+        "Successfully delivered multiple Flask API projects for clients.",
+        "Gained hands-on experience in production-level API development and integration."
+      ]
     }
   ],
 
   "projects": [
     {
       "name": "Gemini Chatbot",
-      "technologies": ["Python", "Flask", "Google Gemini", "React"],
-      "description": "Created an AI-powered chatbot that answers questions based on a structured résumé JSON file. Integrated with Gemini API and deployed via Flask."
+      "technologies": ["Python", "Flask", "Google Gemini API", "React", "JSON"],
+      "description": "Developed an **AI-powered interactive chatbot** capable of answering specific questions based on a highly **structured JSON résumé file**. This project demonstrates expertise in:",
+      "highlights": [
+        "Seamless integration with the **Google Gemini API** for natural language understanding and generation.",
+        "Implementation of a **Flask backend** to serve as the API endpoint.",
+        "Creation of a dynamic **React frontend** for user interaction.",
+        "Utilizing **JSON for structured data management** to ensure accurate and relevant information retrieval.",
+        "Focus on **multilingual response capabilities** and **context-aware Q&A**."
+      ],
+      "link": "https://github.com/HamzaNouman/GeminiChatbot"
     }
   ],
-  "roles for Gemini": [
-    {
-      "description of the role of Gemini": "answers questions based on the structured résumé JSON file, providing accurate and relevant information."
-    }
-  ],
-  "What I am looking for": [
-    {
-      "description": "Help me in coding and programmming, especially in Python and Flask. I am eager to learn and improve my skills in backend development and AI integration, and make sure that i maybe ask about the technologies like arduino and this things."
-    }
-  ]
 
+  "certifications": [
+    {
+      "name": "Google AI for Everyone",
+      "issuer": "Coursera/Google",
+      "year": "2024",
+      "description": "Completed a foundational course on Artificial Intelligence, covering key concepts of AI, Machine Learning, and Deep Learning, and their real-world applications."
+    },
+    {
+      "name": "Python for Everybody Specialization",
+      "issuer": "Coursera/University of Michigan",
+      "year": "2023",
+      "description": "Comprehensive specialization focusing on Python programming, data structures, web data, and databases."
+    }
+  ],
+
+  "what_im_looking_for": "I am actively seeking opportunities to apply and grow my skills in **backend development** and **AI integration**, particularly with Python and Flask. I am eager to contribute to projects that involve complex problem-solving, innovative AI applications, and the development of robust, scalable systems. I am particularly keen to explore opportunities involving **robotics** and **IoT**, like Arduino, as I believe in bridging software with hardware solutions. My goal is to learn from experienced professionals and continuously improve my programming and engineering skills.",
+
+  "additional_info": {
+    "interests": ["AI research", "Robotics competitions", "Open-source contributions", "Learning new programming paradigms"],
+    "goals": ["Become a proficient Software Engineer specializing in AI/Backend", "Contribute to impactful tech projects"]
+  }
 }

@@ -74,3 +74,5 @@ pipenv install flask_cors
 3. make in the folder (data) a file named curriculo.json
 
 4. add in it information about your resume
+
+5. run in 

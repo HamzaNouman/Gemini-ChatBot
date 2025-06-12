@@ -1,5 +1,0 @@
-.env
-Pipfile
-Pipfile.lock
-bakend/__pycache__
-bakend/.env
