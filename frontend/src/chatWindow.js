@@ -2,27 +2,40 @@ import React, { useState } from 'react';
 
 function ChatWindow() {
   const [message, setMessage] = useState('');
-  const [messages, setMessages] = useState([
-    { id: 1, sender: 'You', text: 'Hey Bot, this is a static message' },
-    { id: 2, sender: 'Bot', text: 'Yes, this is not a conversation, you wrote all of it in the chatWindow.js script' },
-    { id: 3, sender: 'You', text: 'You saying im talking alone? By myself?' },
-    { id: 4, sender: 'Bot', text: 'Not really, because your not talking, just typing.' },
-  ]);
+  const [messages, setMessages] = useState([]);
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (message.trim()) {
       const newMessage = {
         id: messages.length + 1,
-        sender: 'You', // Por enquanto, o remetente será sempre 'You'
+        sender: 'You', // Por enquanto, o remetente serÃ¡ sempre 'You'
         text: message.trim(),
       };
       setMessages([...messages, newMessage]);
       setMessage(''); // Limpa o input
+
+      try {
+        const response = await fetch('http://localhost:5000/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ question: message.trim() }),
+        });
+        const data = await response.json();
+        setMessages((prev) => [
+          ...prev,
+          { id: prev.length + 1, sender: 'Bot', text: data.answer },
+        ]);
+      } catch (error) {
+        setMessages((prev) => [
+          ...prev,
+          { id: prev.length + 1, sender: 'Bot', text: 'Error: Could not connect to backend.' },
+        ]);
+      }
     }
   };
 
   const handleKeyPress = (event) => {
-    if (event.key === 'Enter' && !event.shiftKey) { // Envia ao pressionar Enter, mas não Shift+Enter
+    if (event.key === 'Enter' && !event.shiftKey) { // Envia ao pressionar Enter, mas nÃ£o Shift+Enter
       event.preventDefault(); // Evita quebra de linha no textarea
       handleSendMessage();
     }
@@ -30,7 +43,7 @@ function ChatWindow() {
 
   return (
     <div className="flex flex-col h-[90vh] max-w-2xl mx-auto border border-gray-300 rounded-lg shadow-lg overflow-hidden bg-white">
-      {/* Área de exibição de mensagens */}
+      {/* Ãrea de exibiÃ§Ã£o de mensagens */}
       <div className="flex-1 p-4 overflow-y-auto space-y-4">
         {messages.map((msg) => (
           <div key={msg.id} className={`flex ${msg.sender === 'You' ? 'justify-end' : 'justify-start'}`}>
@@ -48,7 +61,7 @@ function ChatWindow() {
         ))}
       </div>
 
-      {/* Área de input de texto e botão de enviar */}
+      {/* Ãrea de input de texto e botÃ£o de enviar */}
       <div className="p-4 border-t border-gray-300 flex items-center bg-gray-50">
         <textarea
           className="flex-1 resize-none p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
