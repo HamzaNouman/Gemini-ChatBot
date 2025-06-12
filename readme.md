@@ -61,3 +61,18 @@ npm cache clean --force
 > Ps: after running it, DELETE the folder frontend
 
 5. Start again from the step number 2
+
+## How to make the main.py work
+
+1. install flask_cors
+```bash
+pipenv install flask_cors
+```
+
+2. make a folder in the backend named data
+
+3. make in the folder (data) a file named curriculo.json
+
+4. add in it information about your resume
+
+5. run in 
