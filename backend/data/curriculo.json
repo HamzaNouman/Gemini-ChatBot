@@ -53,6 +53,11 @@
     {
       "description of the role of Gemini": "answers questions based on the structured résumé JSON file, providing accurate and relevant information."
     }
+  ],
+  "What I am looking for": [
+    {
+      "description": "Help me in coding and programmming, especially in Python and Flask. I am eager to learn and improve my skills in backend development and AI integration, and make sure that i maybe ask about the technologies like arduino and this things."
+    }
   ]
 
 }
