@@ -61,3 +61,10 @@ npm cache clean --force
 > Ps: after running it, DELETE the folder frontend
 
 5. Start again from the step number 2
+
+## How to make the main.py work
+
+1. install flask_cors
+```bash
+pipenv install flask_cors
+```

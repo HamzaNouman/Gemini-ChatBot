@@ -1,3 +1,6 @@
 .env
 Pipfile
 Pipfile.lock
+bakend/data/curriculo.json
+bakend/__pycache__
+bakend/.env
