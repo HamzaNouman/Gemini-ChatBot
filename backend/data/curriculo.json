@@ -48,5 +48,11 @@
       "technologies": ["Python", "Flask", "Google Gemini", "React"],
       "description": "Created an AI-powered chatbot that answers questions based on a structured résumé JSON file. Integrated with Gemini API and deployed via Flask."
     }
+  ],
+  "roles for Gemini": [
+    {
+      "description of the role of Gemini": "answers questions based on the structured résumé JSON file, providing accurate and relevant information."
+    }
   ]
+
 }
