@@ -1,29 +1,72 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 function ChatWindow() {
   const [message, setMessage] = useState('');
-  const [messages, setMessages] = useState([
-    { id: 1, sender: 'You', text: 'Hey Bot, this is a static message' },
-    { id: 2, sender: 'Bot', text: 'Yes, this is not a conversation, you wrote all of it in the chatWindow.js script' },
-    { id: 3, sender: 'You', text: 'You saying im talking alone? By myself?' },
-    { id: 4, sender: 'Bot', text: 'Not really, because your not talking, just typing.' },
-  ]);
+  const [messages, setMessages] = useState([]); // Começa com um array vazio para mensagens dinâmicas
+  const [loading, setLoading] = useState(false); // Novo estado para indicar carregamento
+  const messagesEndRef = useRef(null); // Ref para rolar para o final das mensagens
 
-  const handleSendMessage = () => {
+  // Efeito para rolar para o final das mensagens sempre que elas são atualizadas
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const handleSendMessage = async () => {
     if (message.trim()) {
       const newMessage = {
         id: messages.length + 1,
-        sender: 'You', // Por enquanto, o remetente será sempre 'You'
+        sender: 'You',
         text: message.trim(),
       };
-      setMessages([...messages, newMessage]);
+      setMessages((prevMessages) => [...prevMessages, newMessage]);
       setMessage(''); // Limpa o input
+
+      setLoading(true); // Inicia o estado de carregamento
+
+      try {
+        const response = await fetch('http://127.0.0.1:5000/chat', { // Certifique-se que a URL e porta correspondem ao seu backend
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ question: newMessage.text }),
+        });
+
+        const data = await response.json();
+
+        // Adiciona a resposta do bot
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          {
+            id: prevMessages.length + 1,
+            sender: 'Bot',
+            text: data.answer,
+          },
+        ]);
+      } catch (error) {
+        console.error('Erro ao enviar mensagem:', error);
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          {
+            id: prevMessages.length + 1,
+            sender: 'Bot',
+            text: 'Desculpe, não consegui me conectar ao servidor. Por favor, verifique sua conexão ou tente novamente mais tarde.',
+            isError: true, // Adiciona uma flag para estilizar mensagens de erro se quiser
+          },
+        ]);
+      } finally {
+        setLoading(false); // Finaliza o estado de carregamento
+      }
     }
   };
 
   const handleKeyPress = (event) => {
-    if (event.key === 'Enter' && !event.shiftKey) { // Envia ao pressionar Enter, mas não Shift+Enter
-      event.preventDefault(); // Evita quebra de linha no textarea
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault();
       handleSendMessage();
     }
   };
@@ -38,6 +81,8 @@ function ChatWindow() {
               className={`max-w-[70%] p-3 rounded-lg ${
                 msg.sender === 'You'
                   ? 'bg-blue-500 text-white'
+                  : msg.isError // Usar a flag isError para estilizar
+                  ? 'bg-red-200 text-red-800' // Estilo para erro
                   : 'bg-gray-200 text-gray-800'
               }`}
             >
@@ -46,6 +91,15 @@ function ChatWindow() {
             </div>
           </div>
         ))}
+        {loading && ( // Exibir indicador de carregamento
+          <div className="flex justify-start">
+            <div className="max-w-[70%] p-3 rounded-lg bg-gray-200 text-gray-800">
+              <p className="font-semibold">Bot</p>
+              <p>Digitando...</p>
+            </div>
+          </div>
+        )}
+        <div ref={messagesEndRef} /> {/* Elemento vazio para rolar para o final */}
       </div>
 
       {/* Área de input de texto e botão de enviar */}
@@ -57,12 +111,14 @@ function ChatWindow() {
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           onKeyPress={handleKeyPress}
+          disabled={loading} // Desabilitar input enquanto carrega
         ></textarea>
         <button
-          className="ml-3 px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
+          className="ml-3 px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:opacity-50"
           onClick={handleSendMessage}
+          disabled={loading || !message.trim()} // Desabilitar botão enquanto carrega ou se a mensagem estiver vazia
         >
-          Send
+          {loading ? 'Sending...' : 'Send'}
         </button>
       </div>
     </div>
