@@ -1,6 +1,5 @@
 .env
 Pipfile
 Pipfile.lock
-backend/data/curriculo.json
 bakend/__pycache__
 bakend/.env

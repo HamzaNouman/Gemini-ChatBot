@@ -1,0 +1,63 @@
+{
+  "name": "Hamza Nouman",
+  "title": "High School Student | Aspiring Software Engineer",
+  "summary": "Motivated student with a passion for AI, backend development, and robotics. Focused on building real-world projects using Python, Flask, and React.",
+
+  "contact": {
+    "email": "hamzanouman2009@gmail.com",
+    "location": "Cairo, Egypt",
+    "github": "https://github.com/HamzaNouman"
+  },
+
+  "skills": [
+    "Python", "Flask", "React", "JavaScript", "Git", "REST APIs", "TailwindCSS",
+    "VS Code", "ChatGPT", "Google Gemini", "JSON", "GitHub"
+  ],
+
+  "languages": [
+    {
+      "language": "Arabic",
+      "proficiency": "Native"
+    },
+    {
+      "language": "English",
+      "proficiency": "Advanced"
+    }
+  ],
+
+  "academic_background": [
+    {
+      "school": "Science High School",
+      "location": "Cairo, Egypt",
+      "year": "2025 (Expected)",
+      "focus": "Science Track – Physics, Chemistry, Biology"
+    }
+  ],
+
+  "professional_experience": [
+    {
+      "role": "Backend Developer",
+      "organization": "Freelance Projects",
+      "description": "Worked on building Flask APIs, integrating Google Gemini for chatbot responses, and managing JSON-based knowledge databases."
+    }
+  ],
+
+  "projects": [
+    {
+      "name": "Gemini Chatbot",
+      "technologies": ["Python", "Flask", "Google Gemini", "React"],
+      "description": "Created an AI-powered chatbot that answers questions based on a structured résumé JSON file. Integrated with Gemini API and deployed via Flask."
+    }
+  ],
+  "roles for Gemini": [
+    {
+      "description of the role of Gemini": "answers questions based on the structured résumé JSON file, providing accurate and relevant information."
+    }
+  ],
+  "What I am looking for": [
+    {
+      "description": "Help me in coding and programmming, especially in Python and Flask. I am eager to learn and improve my skills in backend development and AI integration, and make sure that i maybe ask about the technologies like arduino and this things."
+    }
+  ]
+
+}
