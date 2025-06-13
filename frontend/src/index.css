@@ -15,3 +15,39 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+/* You can add this to your main CSS file, e.g., index.css or App.css */
+.typing-animation {
+  display: inline-flex; /* Use inline-flex to keep dots on one line */
+  align-items: center;
+  margin-left: 5px; /* Adjust spacing as needed */
+}
+
+.typing-animation span {
+  display: inline-block;
+  width: 6px; /* Size of the dots */
+  height: 6px; /* Size of the dots */
+  background-color: #555; /* Color of the dots */
+  border-radius: 50%;
+  margin: 0 2px; /* Spacing between dots */
+  animation: bounce 1.4s infinite ease-in-out;
+}
+
+.typing-animation span:nth-child(1) {
+  animation-delay: -0.32s; /* Stagger the animation start */
+}
+.typing-animation span:nth-child(2) {
+  animation-delay: -0.16s;
+}
+.typing-animation span:nth-child(3) {
+  animation-delay: 0s;
+}
+
+@keyframes bounce {
+  0%, 80%, 100% {
+    transform: scale(0);
+  }
+  40% {
+    transform: scale(1);
+  }
+}
