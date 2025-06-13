@@ -2,22 +2,55 @@ import React, { useState, useEffect, useRef } from 'react';
 
 function ChatWindow() {
   const [message, setMessage] = useState('');
-  const [messages, setMessages] = useState([]); 
-  const [loading, setLoading] = useState(false); 
-  const messagesEndRef = useRef(null); 
-  
+  const [messages, setMessages] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const messagesEndRef = useRef(null);
+  const textareaRef = useRef(null); // Ref for the textarea to manage its height
+
+  // Effect to scroll to the bottom whenever messages change
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
 
+  // Effect to adjust textarea height and scroll to bottom when message changes
+  useEffect(() => {
+    adjustTextareaHeight();
+    scrollToBottom(); // Keep scrolling to bottom even when typing
+  }, [message]);
+
+  // Effect to focus the textarea when the component mounts or after sending a message
+  // and loading state changes.
+  useEffect(() => {
+    if (!loading && textareaRef.current) {
+      textareaRef.current.focus();
+    }
+  }, [loading]); // Depend on 'loading' state to re-focus when bot finishes
+
+  // Function to scroll to the bottom of the chat window
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
+  // Function to adjust the textarea height based on content
+  const adjustTextareaHeight = () => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto'; // Reset height to recalculate
+      // Set height based on scroll height, up to a max (e.g., 5 lines)
+      const scrollHeight = textareaRef.current.scrollHeight;
+      const lineHeight = parseFloat(getComputedStyle(textareaRef.current).lineHeight);
+      const maxRows = 5;
+      const maxHeight = lineHeight * maxRows;
+      textareaRef.current.style.height = `${Math.min(scrollHeight, maxHeight)}px`;
+    }
+  };
+
+  // Handle sending a message
   const handleSendMessage = async () => {
+    // Validate that the message is not empty or just whitespace
     if (message.trim()) {
-      const userMessageText = message.trim(); 
-      
+      const userMessageText = message.trim();
+
+      // Add the user's message to the state
       setMessages((prevMessages) => [
         ...prevMessages,
         {
@@ -26,41 +59,41 @@ function ChatWindow() {
           text: userMessageText,
         },
       ]);
-      setMessage(''); // Cleans input
+      setMessage(''); // Clear the input field
 
-      setLoading(true); 
+      setLoading(true); // Set loading state to true to show "Typing..."
 
       try {
-        //  We build the histoy to send to the backend
-        // backend format: [{"role": "user/model", "parts": "text"}, ...]
+        // Build the conversation history for the backend
         const conversationHistory = messages.map(msg => ({
-          role: msg.sender === 'You' ? 'user' : 'model', // Maps 'You' to 'User', and 'Bot' to 'Model'
+          role: msg.sender === 'You' ? 'user' : 'model',
           parts: msg.text,
         }));
-        
-        // Here we add the currently message of the user to the history BEFORE we send the message
-        // This is just for the requiisition
+
+        // Add the current user message to the history for the current request
         const currentRequestHistory = [...conversationHistory, { role: 'user', parts: userMessageText }];
 
-        const response = await fetch('http://127.0.0.1:5000/chat', { 
+        // Make the API call to the backend
+        const response = await fetch('http://127.0.0.1:5000/chat', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            question: userMessageText, // A pergunta atual
-            history: currentRequestHistory // The complete history of the conversation, includiong the actual question of the conversation 
+            question: userMessageText,
+            history: currentRequestHistory
           })
         });
 
+        // Handle non-OK responses from the server
         if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.answer || 'Erro desconhecido do servidor.');
+          const errorData = await response.json();
+          throw new Error(errorData.answer || 'Unknown server error.');
         }
 
         const data = await response.json();
 
-        // Add the asnwer of the bot to the message state (exibition)
+        // Add the bot's answer to the message state
         setMessages((prevMessages) => [
           ...prevMessages,
           {
@@ -70,32 +103,37 @@ function ChatWindow() {
           },
         ]);
       } catch (error) {
-        console.error('Erro ao enviar mensagem:', error);
+        console.error('Error sending message:', error);
+        // Display an error message if the API call fails
         setMessages((prevMessages) => [
           ...prevMessages,
           {
             id: prevMessages.length + 1,
             sender: 'Bot',
-            text: `Desculpe, um erro ocorreu: ${error.message || 'Não foi possível se conectar ao servidor.'} Por favor, tente novamente mais tarde.`,
-            isError: true, // A flag for validation
+            text: `Sorry, an error occurred: ${error.message || 'Could not connect to the server.'} Please try again later.`,
+            isError: true, // Flag for error styling
           },
         ]);
       } finally {
-        setLoading(false); // Ends the loading state
+        setLoading(false); // End the loading state
+        // The useEffect with dependency on 'loading' will handle focusing
       }
     }
   };
 
+  // Handle key presses in the textarea (for Enter to send message)
   const handleKeyPress = (event) => {
-    if (event.key === 'Enter' && !event.shiftKey) { 
-      event.preventDefault(); 
-      handleSendMessage();
+    if (event.key === 'Enter' && !event.shiftKey) { // Send on Enter, allow Shift + Enter for new line
+      event.preventDefault(); // Prevent default new line
+      if (!loading) { // Only allow sending if not loading
+        handleSendMessage();
+      }
     }
   };
 
   return (
     <div className="flex flex-col h-[90vh] max-w-2xl mx-auto border border-gray-300 rounded-lg shadow-lg overflow-hidden bg-white">
-      {}
+      {/* Chat messages display area */}
       <div className="flex-1 p-4 overflow-y-auto space-y-4">
         {messages.map((msg) => (
           <div key={msg.id} className={`flex ${msg.sender === 'You' ? 'justify-end' : 'justify-start'}`}>
@@ -103,8 +141,8 @@ function ChatWindow() {
               className={`max-w-[70%] p-3 rounded-lg ${
                 msg.sender === 'You'
                   ? 'bg-blue-500 text-white'
-                  : msg.isError //User flag error if is an error (styles)
-                  ? 'bg-red-200 text-red-800' // error styles
+                  : msg.isError
+                  ? 'bg-red-200 text-red-800'
                   : 'bg-gray-200 text-gray-800'
               }`}
             >
@@ -113,34 +151,49 @@ function ChatWindow() {
             </div>
           </div>
         ))}
-        {loading && ( // Exibir indicador de carregamento
+        {/* "Typing..." indicator */}
+        {loading && (
           <div className="flex justify-start">
             <div className="max-w-[70%] p-3 rounded-lg bg-gray-200 text-gray-800">
               <p className="font-semibold">Bot</p>
-              <p>Digitando...</p>
+              {/* Simple animation for typing */}
+              <div className="typing-animation">
+                <span></span><span></span><span></span>
+              </div>
             </div>
           </div>
         )}
-        <div ref={messagesEndRef} /> {}
+        <div ref={messagesEndRef} /> {/* Ref for scrolling to the bottom */}
       </div>
 
-      {}
-      <div className="p-4 border-t border-gray-300 flex items-center bg-gray-50">
+      {/* Message input area */}
+      <div className="p-4 border-t border-gray-300 flex items-end bg-gray-50"> {/* Use items-end for better textarea alignment */}
         <textarea
-          className="flex-1 resize-none p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-          rows="2"
+          ref={textareaRef} // Assign the ref to the textarea
+          className="flex-1 resize-none p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 overflow-hidden" // overflow-hidden to prevent scrollbar during auto-resize
+          rows="1" // Start with 1 row, adjust dynamically
           placeholder="Type your message..."
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           onKeyPress={handleKeyPress}
-          disabled={loading} // Desable the inut while is loading
+          // The textarea itself is never disabled, only the send button
+          style={{ minHeight: '40px' }} // Optional: set a minimum height
         ></textarea>
         <button
-          className="ml-3 px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-400 disabled:opacity-50"
+          className="ml-3 px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:opacity-50 flex items-center justify-center"
           onClick={handleSendMessage}
-          disabled={loading || !message.trim()} 
+          disabled={loading || !message.trim()} // Disable if loading or message is empty
         >
-          {loading ? 'Sending...' : 'Send'}
+          {loading ? (
+            'Sending...'
+          ) : (
+            <>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 mr-2">
+                <path d="M3.478 2.405a.75.75 0 0 0-.926.94l2.432 7.905H13.5a.75.75 0 0 1 0 1.5H4.984l-2.432 7.905a.75.75 0 0 0 .926.94 60.543 60.543 0 0 0 18.445-8.986.75.75 0 0 0 0-1.218A60.543 60.543 0 0 0 3.478 2.405Z" />
+              </svg>
+              Send
+            </>
+          )}
         </button>
       </div>
     </div>
