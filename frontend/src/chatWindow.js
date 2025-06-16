@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import axios from 'axios';
 
 function ChatWindow() {
   const [message, setMessage] = useState('');
@@ -73,25 +74,18 @@ function ChatWindow() {
         // Add the current user message to the history for the current request
         const currentRequestHistory = [...conversationHistory, { role: 'user', parts: userMessageText }];
 
-        // Make the API call to the backend
-        const response = await fetch('http://127.0.0.1:5000/chat', {
-          method: 'POST',
+        const response = await axios.post('http://localhost:5000/chat', {
+          question: userMessageText,
+          history: currentRequestHistory
+        }, {
           headers: {
             'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            question: userMessageText,
-            history: currentRequestHistory
-          })
-        });
+          }
+        })
+        .catch((error) => console.error('Error fetching data:', error));
 
-        // Handle non-OK responses from the server
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.answer || 'Unknown server error.');
-        }
+        // Make the API call to the backend
 
-        const data = await response.json();
 
         // Add the bot's answer to the message state
         setMessages((prevMessages) => [
@@ -99,7 +93,7 @@ function ChatWindow() {
           {
             id: prevMessages.length + 1,
             sender: 'Bot',
-            text: data.answer,
+            text: response.data.answer,
           },
         ]);
       } catch (error) {
@@ -132,8 +126,9 @@ function ChatWindow() {
   };
 
   return (
-    <div className="flex flex-col h-[90vh] max-w-2xl mx-auto border border-gray-300 rounded-lg shadow-lg overflow-hidden bg-white">
+    <div className="flex flex-col h-[90vh] w-[90vw] max-w-2xl mx-auto border border-gray-500 rounded-lg shadow-lg overflow-hidden bg-white">
       {/* Chat messages display area */}
+      <img src="/chatbot.png" alt="Chat Icon" className="bounce w-8 h-8 md:w-12 md:h-12 animate-bounceYZ transform hover:scale-110 " onClick={() => window.location.reload()} style={{ width: '8vw', height: '8vw', maxWidth: 48, maxHeight: 48, minWidth: 24, minHeight: 24 }} />
       <div className="flex-1 p-4 overflow-y-auto space-y-4">
         {messages.map((msg) => (
           <div key={msg.id} className={`flex ${msg.sender === 'You' ? 'justify-end' : 'justify-start'}`}>
@@ -170,7 +165,7 @@ function ChatWindow() {
       <div className="p-4 border-t border-gray-300 flex items-end bg-gray-50"> {/* Use items-end for better textarea alignment */}
         <textarea
           ref={textareaRef} // Assign the ref to the textarea
-          className="flex-1 resize-none p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 overflow-hidden" // overflow-hidden to prevent scrollbar during auto-resize
+          className="flex-1 resize-none p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500  overflow-hidden" // overflow-hidden to prevent scrollbar during auto-resize
           rows="1" // Start with 1 row, adjust dynamically
           placeholder="Type your message..."
           value={message}
@@ -180,7 +175,7 @@ function ChatWindow() {
           style={{ minHeight: '40px' }} // Optional: set a minimum height
         ></textarea>
         <button
-          className="ml-3 px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:opacity-50 flex items-center justify-center"
+          className="ml-3 px-6 py-2 bg-blue-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-300 disabled:opacity-50 enabled:hover:bg-black flex items-center justify-center transition ease-in duration-500"
           onClick={handleSendMessage}
           disabled={loading || !message.trim()} // Disable if loading or message is empty
         >

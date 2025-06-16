@@ -1,11 +1,13 @@
-import React from 'react';
-import './App.css'; // Mantenha este se você tiver estilos globais
-import ChatWindow from './chatWindow'; // Importe o componente ChatWindow
+import React, { useState } from 'react';
+import './App.css';
+import ChatWindow from './chatWindow';
+import OpeningWindow from './openingWindow';
 
 function App() {
+  const [showChat, setShowChat] = useState(false);
   return (
     <div className="App min-h-screen flex items-center justify-center bg-gray-100">
-      <ChatWindow />
+      {showChat ? <ChatWindow /> : <OpeningWindow onStartChat={() => setShowChat(true)} />}
     </div>
   );
 }
