@@ -11,25 +11,25 @@ function QuestionWindow({ onAnswerSelected }) { // Prop to handle answer selecti
       <div className="grid grid-cols-2 gap-6 w-full max-w-md"> {/* Grid for 2x2 buttons */}
         <button
           onClick={onAnswerSelected} // All buttons will lead to the chat for now
-          className="px-6 py-4 bg-purple-600 text-white text-lg font-semibold rounded-lg hover:bg-black transition duration-300 ease-in-out shadow-md"
+          className="px-6 py-4 bg-purple-600 text-white text-lg font-semibold rounded-lg hover:bg-black transition duration-600 ease-in-out shadow-md"
         >
           Recruiter
         </button>
         <button
           onClick={onAnswerSelected}
-          className="px-6 py-4 bg-purple-600 text-white text-lg font-semibold rounded-lg hover:bg-black transition duration-300 ease-in-out shadow-md"
+          className="px-6 py-4 bg-purple-600 text-white text-lg font-semibold rounded-lg hover:bg-black transition duration-600 ease-in-out shadow-md"
         >
           Developer
         </button>
         <button
           onClick={onAnswerSelected}
-          className="px-6 py-4 bg-purple-600 text-white text-lg font-semibold rounded-lg hover:bg-black transition duration-300 ease-in-out shadow-md"
+          className="px-6 py-4 bg-purple-600 text-white text-lg font-semibold rounded-lg hover:bg-black transition duration-600 ease-in-out shadow-md"
         >
           Tester
         </button>
         <button
           onClick={onAnswerSelected}
-          className="px-6 py-4 bg-purple-600 text-white text-lg font-semibold rounded-lg hover:bg-black transition duration-300 ease-in-out shadow-md"
+          className="px-6 py-4 bg-purple-600 text-white text-lg font-semibold rounded-lg hover:bg-black transition duration-600 ease-in-out shadow-md"
         >
           A friend of you
         </button>
