@@ -2,12 +2,41 @@ import React, { useState } from 'react';
 import './App.css';
 import ChatWindow from './chatWindow';
 import OpeningWindow from './openingWindow';
+import QuestionWindow from './questionWindow'; // Import the new QuestionWindow
 
 function App() {
-  const [showChat, setShowChat] = useState(false);
+  // We'll use 'currentScreen' to manage which component is rendered.
+  // Possible values: 'welcome', 'question1', 'chat'
+  const [currentScreen, setCurrentScreen] = useState('welcome');
+
+  // Function to navigate from the Welcome screen to the Question 1 screen
+  const handleStartQuestion = () => {
+    setCurrentScreen('question1');
+  };
+
+  // Function to navigate from the Question 1 screen to the Chat window
+  const handleAnswerSelected = () => {
+    setCurrentScreen('chat');
+  };
+
   return (
     <div className="App min-h-screen flex items-center justify-center bg-gray-100">
-      {showChat ? <ChatWindow /> : <OpeningWindow onStartChat={() => setShowChat(true)} />}
+      {currentScreen === 'welcome' && (
+        // Render the OpeningWindow (Welcome screen)
+        // Pass handleStartQuestion to it, so its button can change the screen
+        <OpeningWindow onStartQuestion={handleStartQuestion} />
+      )}
+
+      {currentScreen === 'question1' && (
+        // Render the QuestionWindow (Question 1 screen)
+        // Pass handleAnswerSelected to it, so its buttons can change the screen
+        <QuestionWindow onAnswerSelected={handleAnswerSelected} />
+      )}
+
+      {currentScreen === 'chat' && (
+        // Render the ChatWindow when currentScreen is 'chat'
+        <ChatWindow />
+      )}
     </div>
   );
 }
