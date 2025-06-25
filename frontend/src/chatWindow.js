@@ -51,7 +51,7 @@ function ChatWindow() {
     if (message.trim()) {
       const userMessageText = message.trim();
 
-      // Add the user's message to the state
+      // Add the user's message to the state immediately
       setMessages((prevMessages) => [
         ...prevMessages,
         {
@@ -66,13 +66,14 @@ function ChatWindow() {
 
       try {
         // Build the conversation history for the backend
+        // Ensure parts is an array of objects as expected by Gemini API
         const conversationHistory = messages.map(msg => ({
           role: msg.sender === 'You' ? 'user' : 'model',
-          parts: msg.text,
+          parts: [{ text: msg.text }], // Wrap text in an object with 'text' property
         }));
 
         // Add the current user message to the history for the current request
-        const currentRequestHistory = [...conversationHistory, { role: 'user', parts: userMessageText }];
+        const currentRequestHistory = [...conversationHistory, { role: 'user', parts: [{ text: userMessageText }] }];
 
         const response = await axios.post('http://localhost:5000/chat', {
           question: userMessageText,
@@ -81,27 +82,63 @@ function ChatWindow() {
           headers: {
             'Content-Type': 'application/json',
           }
-        })
-        .catch((error) => console.error('Error fetching data:', error));
+        });
 
         // Add the bot's answer to the message state
-        setMessages((prevMessages) => [
-          ...prevMessages,
-          {
-            id: prevMessages.length + 1,
-            sender: 'Bot',
-            text: response.data.answer,
-          },
-        ]);
+        // Check if response and response.data exist, and if response.data.answer has content
+        if (response && response.data && response.data.answer) {
+          setMessages((prevMessages) => [
+            ...prevMessages,
+            {
+              id: prevMessages.length + 1,
+              sender: 'Bot',
+              text: response.data.answer,
+            },
+          ]);
+        } else {
+          // Handle cases where the API returns an unexpected structure or empty answer
+          console.warn('API returned an unexpected structure or an empty answer:', response);
+          setMessages((prevMessages) => [
+            ...prevMessages,
+            {
+              id: prevMessages.length + 1,
+              sender: 'Bot',
+              text: 'Desculpe, a API retornou uma resposta inesperada. Por favor, tente novamente.',
+              isError: true,
+            },
+          ]);
+        }
       } catch (error) {
         console.error('Error sending message:', error);
+        let errorMessage = 'Não foi possível conectar ao servidor.';
+
+        if (error.response) {
+          // The request was made and the server responded with a status code
+          // that falls out of the range of 2xx
+          console.error('Server response error:', error.response.data);
+          console.error('Status:', error.response.status);
+          if (error.response.data && error.response.data.message) {
+            errorMessage = `Erro do servidor: ${error.response.data.message}`;
+          } else {
+            errorMessage = `Erro do servidor (Status: ${error.response.status}).`;
+          }
+        } else if (error.request) {
+          // The request was made but no response was received
+          console.error('No response received:', error.request);
+          errorMessage = 'Erro de rede: Nenhuma resposta foi recebida do servidor.';
+        } else {
+          // Something happened in setting up the request that triggered an Error
+          console.error('Error setting up request:', error.message);
+          errorMessage = `Ocorreu um erro inesperado: ${error.message}.`;
+        }
+
         // Display an error message if the API call fails
         setMessages((prevMessages) => [
           ...prevMessages,
           {
             id: prevMessages.length + 1,
             sender: 'Bot',
-            text: `Sorry, an error occurred: ${error.message || 'Could not connect to the server.'} Please try again later.`,
+            text: `Desculpe, um erro ocorreu: ${errorMessage} Por favor, tente novamente mais tarde.`,
             isError: true, // Flag for error styling
           },
         ]);
@@ -131,6 +168,7 @@ function ChatWindow() {
           src="/chatbot.png" // Path to the main chatbot icon
           alt="Chatbot Icon"
           className="bounce w-16 h-16 md:w-20 md:h-20 animate-bounceYZ transform hover:scale-110"
+          onError={(e) => { e.target.onerror = null; e.target.src="https://placehold.co/60x60/cccccc/ffffff?text=BOT"; }}
         />
         <p className="ml-4 text-lg font-semibold text-gray-700">Click on the chatbot to return to the initial menu</p>
       </div>
@@ -147,6 +185,7 @@ function ChatWindow() {
                   src="chatbot.png" // Path to the bot's profile icon
                   alt="Bot Profile"
                   className="w-10 h-10 rounded-full mr-2" // Adjust size and margin as needed
+                  onError={(e) => { e.target.onerror = null; e.target.src="https://placehold.co/40x40/cccccc/ffffff?text=BOT"; }}
                 />
               )}
               {/* Message bubble */}
@@ -172,6 +211,7 @@ function ChatWindow() {
                 src="icon2.gif" // Path to the bot's profile icon
                 alt="Bot Profile"
                 className="w-10 h-10 rounded-full mr-2" // Adjust size and margin as needed
+                onError={(e) => { e.target.onerror = null; e.target.src="https://placehold.co/40x40/cccccc/ffffff?text=BOT"; }}
               />
               <div className="max-w-[70%] p-3 rounded-lg bg-gray-200 text-gray-800">
                 <p className="font-semibold">Bot</p>
