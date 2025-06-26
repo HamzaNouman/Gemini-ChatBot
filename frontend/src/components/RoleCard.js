@@ -28,7 +28,7 @@ const RoleCard = ({ role, isSelected, onSelect, disabled = false }) => {
       onKeyPress={handleKeyPress}
       tabIndex={disabled ? -1 : 0}
       role="button"
-      aria-label={`Selecionar perfil: ${role.name}`}
+      aria-label={`Select profile: ${role.name}`}
       aria-pressed={isSelected}
     >
       {/* Card principal */}
@@ -87,7 +87,7 @@ const RoleCard = ({ role, isSelected, onSelect, disabled = false }) => {
         {/* Áreas de foco */}
         <div className="mb-4">
           <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
-            Áreas de Foco
+            Focus Areas
           </h4>
           <div className="flex flex-wrap gap-1.5">
             {role.focus_areas.slice(0, 3).map((area, index) => (
@@ -116,7 +116,7 @@ const RoleCard = ({ role, isSelected, onSelect, disabled = false }) => {
             className="text-xs text-gray-500 hover:text-gray-700 transition-colors duration-200 flex items-center space-x-1"
             onClick={(e) => e.stopPropagation()}
           >
-            <span>Ver exemplos</span>
+            <span>See examples</span>
             <svg className="w-3 h-3 transition-transform group-hover/tooltip:translate-x-1" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
             </svg>
@@ -124,7 +124,7 @@ const RoleCard = ({ role, isSelected, onSelect, disabled = false }) => {
           
           {/* Tooltip melhorado */}
           <div className="absolute bottom-full left-0 right-0 mb-3 p-4 bg-gray-900 text-white text-xs rounded-xl opacity-0 invisible group-hover/tooltip:opacity-100 group-hover/tooltip:visible transition-all duration-300 z-10 shadow-2xl">
-            <div className="font-bold mb-3 text-blue-300">💡 Exemplos de perguntas:</div>
+            <div className="font-bold mb-3 text-blue-300">💡 Example questions:</div>
             <ul className="space-y-2">
               {role.example_questions.slice(0, 3).map((question, index) => (
                 <li key={index} className="text-gray-300 leading-relaxed">

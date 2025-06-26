@@ -110,7 +110,7 @@ function ChatWindow({ onBackToRoleSelect }) {
             {
               id: Date.now() + 1,
               sender: 'Bot',
-              text: 'Desculpe, a API retornou uma resposta inesperada. Por favor, tente novamente.',
+              text: 'Sorry, the API returned an unexpected response. Please try again.',
               isError: true,
               timestamp: new Date().toLocaleTimeString('pt-BR', { 
                 hour: '2-digit', 
@@ -121,22 +121,22 @@ function ChatWindow({ onBackToRoleSelect }) {
         }
       } catch (error) {
         console.error('Error sending message:', error);
-        let errorMessage = 'Não foi possível conectar ao servidor.';
+        let errorMessage = 'Could not connect to server.';
 
         if (error.response) {
           console.error('Server response error:', error.response.data);
           console.error('Status:', error.response.status);
           if (error.response.data && error.response.data.message) {
-            errorMessage = `Erro do servidor: ${error.response.data.message}`;
+            errorMessage = `Server error: ${error.response.data.message}`;
           } else {
-            errorMessage = `Erro do servidor (Status: ${error.response.status}).`;
+            errorMessage = `Server error (Status: ${error.response.status}).`;
           }
         } else if (error.request) {
           console.error('No response received:', error.request);
-          errorMessage = 'Erro de rede: Nenhuma resposta foi recebida do servidor.';
+          errorMessage = 'Network error: No response was received from the server.';
         } else {
           console.error('Error setting up request:', error.message);
-          errorMessage = `Ocorreu um erro inesperado: ${error.message}.`;
+          errorMessage = `An unexpected error occurred: ${error.message}.`;
         }
 
         setMessages((prevMessages) => [
@@ -144,7 +144,7 @@ function ChatWindow({ onBackToRoleSelect }) {
           {
             id: Date.now() + 1,
             sender: 'Bot',
-            text: `Desculpe, um erro ocorreu: ${errorMessage} Por favor, tente novamente mais tarde.`,
+            text: `Sorry, an error occurred: ${errorMessage} Please try again later.`,
             isError: true,
             timestamp: new Date().toLocaleTimeString('pt-BR', { 
               hour: '2-digit', 
@@ -184,7 +184,7 @@ function ChatWindow({ onBackToRoleSelect }) {
                 className="w-8 h-8 md:w-10 md:h-10 animate-bounceYZ transform hover:scale-110 transition-transform duration-200"
                 onError={(e) => { e.target.onerror = null; e.target.src="https://placehold.co/40x40/cccccc/ffffff?text=BOT"; }}
               />
-              <span className="hidden sm:block text-sm font-medium">Voltar ao Menu</span>
+              <span className="hidden sm:block text-sm font-medium">Back to Menu</span>
             </button>
           </div>
           
@@ -237,8 +237,8 @@ function ChatWindow({ onBackToRoleSelect }) {
             {messages.length === 0 && (
               <div className="text-center py-8 text-gray-500">
                 <div className="text-4xl mb-4">👋</div>
-                <h3 className="text-lg font-medium mb-2">Bem-vindo ao Chat!</h3>
-                <p className="text-sm">Faça uma pergunta sobre o currículo do Hamza para começar.</p>
+                <h3 className="text-lg font-medium mb-2">Welcome to Chat!</h3>
+                <p className="text-sm">Ask a question about Hamza's resume to get started.</p>
               </div>
             )}
             
@@ -294,7 +294,7 @@ function ChatWindow({ onBackToRoleSelect }) {
                 </div>
                 <div className="flex flex-col max-w-[85%] md:max-w-[70%]">
                   <div className="p-3 rounded-2xl bg-gray-100 text-gray-800 rounded-bl-md shadow-sm">
-                    <p className="text-sm font-medium mb-2">Assistente</p>
+                    <p className="text-sm font-medium mb-2">Assistant</p>
                     <div className="flex space-x-1">
                       <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
                       <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
@@ -315,7 +315,7 @@ function ChatWindow({ onBackToRoleSelect }) {
                   ref={textareaRef}
                   className="w-full resize-none p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white shadow-sm"
                   rows="1"
-                  placeholder="Digite sua mensagem..."
+                  placeholder="Enter your message..."
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
                   onKeyPress={handleKeyPress}
@@ -338,14 +338,14 @@ function ChatWindow({ onBackToRoleSelect }) {
                 {loading ? (
                   <>
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                    <span className="hidden sm:inline">Enviando...</span>
+                    <span className="hidden sm:inline">Sending...</span>
                   </>
                 ) : (
                   <>
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
                       <path d="M3.478 2.405a.75.75 0 0 0-.926.94l2.432 7.905H13.5a.75.75 0 0 1 0 1.5H4.984l-2.432 7.905a.75.75 0 0 0 .926.94 60.543 60.543 0 0 0 18.445-8.986.75.75 0 0 0 0-1.218A60.543 60.543 0 0 0 3.478 2.405Z" />
                     </svg>
-                    <span className="hidden sm:inline">Enviar</span>
+                    <span className="hidden sm:inline">To send</span>
                   </>
                 )}
               </button>
