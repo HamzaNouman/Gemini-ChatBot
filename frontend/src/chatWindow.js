@@ -1,12 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
+import { useRole } from './components/RoleContext';
 
-function ChatWindow() {
+function ChatWindow({ onBackToRoleSelect }) {
+  const { selectedRole } = useRole();
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef(null);
-  const textareaRef = useRef(null); // Ref for the textarea to manage its height
+  const textareaRef = useRef(null);
 
   // Effect to scroll to the bottom whenever messages change
   useEffect(() => {
@@ -16,16 +18,15 @@ function ChatWindow() {
   // Effect to adjust textarea height and scroll to bottom when message changes
   useEffect(() => {
     adjustTextareaHeight();
-    scrollToBottom(); // Keep scrolling to bottom even when typing
+    scrollToBottom();
   }, [message]);
 
   // Effect to focus the textarea when the component mounts or after sending a message
-  // and loading state changes.
   useEffect(() => {
     if (!loading && textareaRef.current) {
       textareaRef.current.focus();
     }
-  }, [loading]); // Depend on 'loading' state to re-focus when bot finishes
+  }, [loading]);
 
   // Function to scroll to the bottom of the chat window
   const scrollToBottom = () => {
@@ -35,8 +36,7 @@ function ChatWindow() {
   // Function to adjust the textarea height based on content
   const adjustTextareaHeight = () => {
     if (textareaRef.current) {
-      textareaRef.current.style.height = 'auto'; // Reset height to recalculate
-      // Set height based on scroll height, up to a max (e.g., 5 lines)
+      textareaRef.current.style.height = 'auto';
       const scrollHeight = textareaRef.current.scrollHeight;
       const lineHeight = parseFloat(getComputedStyle(textareaRef.current).lineHeight);
       const maxRows = 5;
@@ -47,7 +47,6 @@ function ChatWindow() {
 
   // Handle sending a message
   const handleSendMessage = async () => {
-    // Validate that the message is not empty or just whitespace
     if (message.trim()) {
       const userMessageText = message.trim();
 
@@ -55,56 +54,68 @@ function ChatWindow() {
       setMessages((prevMessages) => [
         ...prevMessages,
         {
-          id: prevMessages.length + 1,
+          id: Date.now(), // Use timestamp for unique ID
           sender: 'You',
           text: userMessageText,
+          timestamp: new Date().toLocaleTimeString('pt-BR', { 
+            hour: '2-digit', 
+            minute: '2-digit' 
+          })
         },
       ]);
-      setMessage(''); // Clear the input field
+      setMessage('');
 
-      setLoading(true); // Set loading state to true to show "Typing..."
+      setLoading(true);
 
       try {
-        // Build the conversation history for the backend
-        // Ensure parts is an array of objects as expected by Gemini API
         const conversationHistory = messages.map(msg => ({
           role: msg.sender === 'You' ? 'user' : 'model',
-          parts: [{ text: msg.text }], // Wrap text in an object with 'text' property
+          parts: [{ text: msg.text }],
         }));
 
-        // Add the current user message to the history for the current request
         const currentRequestHistory = [...conversationHistory, { role: 'user', parts: [{ text: userMessageText }] }];
 
-        const response = await axios.post('http://localhost:5000/chat', {
+        const requestData = {
           question: userMessageText,
           history: currentRequestHistory
-        }, {
+        };
+
+        if (selectedRole) {
+          requestData.role = selectedRole.id;
+        }
+
+        const response = await axios.post('http://localhost:5000/chat', requestData, {
           headers: {
             'Content-Type': 'application/json',
           }
         });
 
-        // Add the bot's answer to the message state
-        // Check if response and response.data exist, and if response.data.answer has content
         if (response && response.data && response.data.answer) {
           setMessages((prevMessages) => [
             ...prevMessages,
             {
-              id: prevMessages.length + 1,
+              id: Date.now() + 1,
               sender: 'Bot',
               text: response.data.answer,
+              timestamp: new Date().toLocaleTimeString('pt-BR', { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+              })
             },
           ]);
         } else {
-          // Handle cases where the API returns an unexpected structure or empty answer
           console.warn('API returned an unexpected structure or an empty answer:', response);
           setMessages((prevMessages) => [
             ...prevMessages,
             {
-              id: prevMessages.length + 1,
+              id: Date.now() + 1,
               sender: 'Bot',
               text: 'Desculpe, a API retornou uma resposta inesperada. Por favor, tente novamente.',
               isError: true,
+              timestamp: new Date().toLocaleTimeString('pt-BR', { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+              })
             },
           ]);
         }
@@ -113,8 +124,6 @@ function ChatWindow() {
         let errorMessage = 'Não foi possível conectar ao servidor.';
 
         if (error.response) {
-          // The request was made and the server responded with a status code
-          // that falls out of the range of 2xx
           console.error('Server response error:', error.response.data);
           console.error('Status:', error.response.status);
           if (error.response.data && error.response.data.message) {
@@ -123,139 +132,258 @@ function ChatWindow() {
             errorMessage = `Erro do servidor (Status: ${error.response.status}).`;
           }
         } else if (error.request) {
-          // The request was made but no response was received
           console.error('No response received:', error.request);
           errorMessage = 'Erro de rede: Nenhuma resposta foi recebida do servidor.';
         } else {
-          // Something happened in setting up the request that triggered an Error
           console.error('Error setting up request:', error.message);
           errorMessage = `Ocorreu um erro inesperado: ${error.message}.`;
         }
 
-        // Display an error message if the API call fails
         setMessages((prevMessages) => [
           ...prevMessages,
           {
-            id: prevMessages.length + 1,
+            id: Date.now() + 1,
             sender: 'Bot',
             text: `Desculpe, um erro ocorreu: ${errorMessage} Por favor, tente novamente mais tarde.`,
-            isError: true, // Flag for error styling
+            isError: true,
+            timestamp: new Date().toLocaleTimeString('pt-BR', { 
+              hour: '2-digit', 
+              minute: '2-digit' 
+            })
           },
         ]);
       } finally {
-        setLoading(false); // End the loading state
-        // The useEffect with dependency on 'loading' will handle focusing
+        setLoading(false);
       }
     }
   };
 
-  // Handle key presses in the textarea (for Enter to send message)
+  // Handle key presses in the textarea
   const handleKeyPress = (event) => {
-    if (event.key === 'Enter' && !event.shiftKey) { // Send on Enter, allow Shift + Enter for new line
-      event.preventDefault(); // Prevent default new line
-      if (!loading) { // Only allow sending if not loading
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault();
+      if (!loading) {
         handleSendMessage();
       }
     }
   };
 
   return (
-    // Main container for the whole chat interface, including the header
-    <div className="flex flex-col h-screen items-center justify-center bg-gray-100 p-4">
-      {/* Header div for the chatbot icon and text */}
-      <div className="flex items-center justify-center mb-4 cursor-pointer" onClick={() => window.location.reload()}>
-        <img
-          src="/chatbot.png" // Path to the main chatbot icon
-          alt="Chatbot Icon"
-          className="bounce w-16 h-16 md:w-20 md:h-20 animate-bounceYZ transform hover:scale-110"
-          onError={(e) => { e.target.onerror = null; e.target.src="https://placehold.co/60x60/cccccc/ffffff?text=BOT"; }}
-        />
-        <p className="ml-4 text-lg font-semibold text-gray-700">Click on the chatbot to return to the initial menu</p>
-      </div>
-
-      {/* Main chat window container */}
-      <div className="flex flex-col h-[90vh] w-[90vw] max-w-2xl mx-auto border border-gray-500 rounded-lg shadow-lg overflow-hidden bg-white">
-        {/* Chat messages display area */}
-        <div className="flex-1 p-4 overflow-y-auto space-y-4">
-          {messages.map((msg) => (
-            <div key={msg.id} className={`flex ${msg.sender === 'You' ? 'justify-end' : 'justify-start'} items-start`}>
-              {/* Bot profile icon for bot messages */}
-              {msg.sender === 'Bot' && (
-                <img
-                  src="chatbot.png" // Path to the bot's profile icon
-                  alt="Bot Profile"
-                  className="w-10 h-10 rounded-full mr-2" // Adjust size and margin as needed
-                  onError={(e) => { e.target.onerror = null; e.target.src="https://placehold.co/40x40/cccccc/ffffff?text=BOT"; }}
-                />
-              )}
-              {/* Message bubble */}
-              <div
-                className={`max-w-[70%] p-3 rounded-lg ${
-                  msg.sender === 'You'
-                    ? 'bg-blue-500 text-white'
-                    : msg.isError
-                    ? 'bg-red-200 text-red-800'
-                    : 'bg-gray-200 text-gray-800'
-                }`}
-              >
-                <p className="font-semibold">{msg.sender}</p>
-                <p>{msg.text}</p>
-              </div>
-            </div>
-          ))}
-          {/* "Typing..." indicator */}
-          {loading && (
-            <div className="flex justify-start items-start">
-              {/* Bot profile icon for typing indicator */}
+    <div className="flex flex-col h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
+      {/* Header */}
+      <div className="bg-white shadow-sm border-b border-gray-200 px-4 py-3">
+        <div className="max-w-4xl mx-auto flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <button
+              onClick={() => window.location.reload()}
+              className="flex items-center space-x-2 text-gray-600 hover:text-gray-800 transition-colors duration-200"
+            >
               <img
-                src="icon2.gif" // Path to the bot's profile icon
-                alt="Bot Profile"
-                className="w-10 h-10 rounded-full mr-2" // Adjust size and margin as needed
+                src="/chatbot.png"
+                alt="Chatbot Icon"
+                className="w-8 h-8 md:w-10 md:h-10 animate-bounceYZ transform hover:scale-110 transition-transform duration-200"
                 onError={(e) => { e.target.onerror = null; e.target.src="https://placehold.co/40x40/cccccc/ffffff?text=BOT"; }}
               />
-              <div className="max-w-[70%] p-3 rounded-lg bg-gray-200 text-gray-800">
-                <p className="font-semibold">Bot</p>
-                {/* Simple animation for typing */}
-                <div className="typing-animation">
-                  <span></span><span></span><span></span>
-                </div>
+              <span className="hidden sm:block text-sm font-medium">Voltar ao Menu</span>
+            </button>
+          </div>
+          
+          {selectedRole && (
+            <div className="flex items-center space-x-2 bg-blue-50 px-3 py-2 rounded-lg border border-blue-200">
+              <span className="text-xl">{selectedRole.icon}</span>
+              <div className="hidden sm:block">
+                <p className="text-sm font-medium text-blue-900">{selectedRole.name}</p>
+                <p className="text-xs text-blue-700">{selectedRole.description}</p>
               </div>
             </div>
           )}
-          <div ref={messagesEndRef} /> {/* Ref for scrolling to the bottom */}
-        </div>
-
-        {/* Message input area */}
-        <div className="p-4 border-t border-gray-300 flex items-end bg-gray-50">
-          <textarea
-            ref={textareaRef} // Assign the ref to the textarea
-            className="flex-1 resize-none p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500  overflow-hidden" // overflow-hidden to prevent scrollbar during auto-resize
-            rows="1" // Start with 1 row, adjust dynamically
-            placeholder="Type your message..."
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            onKeyPress={handleKeyPress}
-            // The textarea itself is never disabled, only the send button
-            style={{ minHeight: '40px' }} // Optional: set a minimum height
-          ></textarea>
-          <button
-            className="ml-3 px-6 py-2 bg-blue-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-300 disabled:opacity-50 enabled:hover:bg-black flex items-center justify-center transition ease-in duration-500"
-            onClick={handleSendMessage}
-            disabled={loading || !message.trim()} // Disable if loading or message is empty
-          >
-            {loading ? (
-              'Sending...'
-            ) : (
-              <>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 mr-2">
-                  <path d="M3.478 2.405a.75.75 0 0 0-.926.94l2.432 7.905H13.5a.75.75 0 0 1 0 1.5H4.984l-2.432 7.905a.75.75 0 0 0 .926.94 60.543 60.543 0 0 0 18.445-8.986.75.75 0 0 0 0-1.218A60.543 60.543 0 0 0 3.478 2.405Z" />
-                </svg>
-                Send
-              </>
-            )}
-          </button>
         </div>
       </div>
+
+      {/* Main chat container */}
+      <div className="flex-1 max-w-4xl mx-auto w-full px-4 py-4">
+        <div className="bg-white rounded-xl shadow-lg border border-gray-200 flex flex-col h-full overflow-hidden">
+          {/* Role indicator header */}
+          {selectedRole && (
+            <div 
+              className="px-4 py-3 border-b border-gray-200 flex items-center justify-between transition-all duration-300"
+              style={{ 
+                backgroundColor: `${selectedRole.color}08`,
+                borderBottomColor: `${selectedRole.color}20`
+              }}
+            >
+              <div className="flex items-center space-x-3">
+                <span className="text-2xl animate-pulse">{selectedRole.icon}</span>
+                <div>
+                  <h3 className="font-semibold text-gray-900">{selectedRole.name}</h3>
+                  <p className="text-sm text-gray-600">{selectedRole.description}</p>
+                </div>
+              </div>
+              <button
+                onClick={onBackToRoleSelect}
+                className="text-gray-500 hover:text-gray-700 transition-colors p-2 rounded-lg hover:bg-gray-100 duration-200"
+                title="Trocar perfil"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+              </button>
+            </div>
+          )}
+
+          {/* Chat messages display area */}
+          <div className="flex-1 p-4 overflow-y-auto space-y-4 scroll-smooth">
+            {messages.length === 0 && (
+              <div className="text-center py-8 text-gray-500">
+                <div className="text-4xl mb-4">👋</div>
+                <h3 className="text-lg font-medium mb-2">Bem-vindo ao Chat!</h3>
+                <p className="text-sm">Faça uma pergunta sobre o currículo do Hamza para começar.</p>
+              </div>
+            )}
+            
+            {messages.map((msg, index) => (
+              <div 
+                key={msg.id} 
+                className={`flex ${msg.sender === 'You' ? 'justify-end' : 'justify-start'} items-start animate-fadeIn`}
+                style={{ animationDelay: `${index * 100}ms` }}
+              >
+                {msg.sender === 'Bot' && (
+                  <div className="flex-shrink-0 mr-3">
+                    <img
+                      src="/chatbot.png"
+                      alt="Bot Profile"
+                      className="w-8 h-8 md:w-10 md:h-10 rounded-full border-2 border-gray-200"
+                      onError={(e) => { e.target.onerror = null; e.target.src="https://placehold.co/40x40/cccccc/ffffff?text=BOT"; }}
+                    />
+                  </div>
+                )}
+                
+                <div className="flex flex-col max-w-[85%] md:max-w-[70%]">
+                  <div
+                    className={`p-3 rounded-2xl shadow-sm transition-all duration-200 ${
+                      msg.sender === 'You'
+                        ? 'bg-blue-500 text-white rounded-br-md'
+                        : msg.isError
+                        ? 'bg-red-100 text-red-800 border border-red-200'
+                        : 'bg-gray-100 text-gray-800 rounded-bl-md'
+                    }`}
+                  >
+                    <p className="text-sm font-medium mb-1">
+                      {msg.sender === 'You' ? 'Você' : 'Assistente'}
+                    </p>
+                    <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.text}</p>
+                  </div>
+                  <span className="text-xs text-gray-400 mt-1 px-1">
+                    {msg.timestamp}
+                  </span>
+                </div>
+              </div>
+            ))}
+            
+            {/* "Typing..." indicator */}
+            {loading && (
+              <div className="flex justify-start items-start animate-fadeIn">
+                <div className="flex-shrink-0 mr-3">
+                  <img
+                    src="/icon2.gif"
+                    alt="Bot Profile"
+                    className="w-8 h-8 md:w-10 md:h-10 rounded-full border-2 border-gray-200"
+                    onError={(e) => { e.target.onerror = null; e.target.src="https://placehold.co/40x40/cccccc/ffffff?text=BOT"; }}
+                  />
+                </div>
+                <div className="flex flex-col max-w-[85%] md:max-w-[70%]">
+                  <div className="p-3 rounded-2xl bg-gray-100 text-gray-800 rounded-bl-md shadow-sm">
+                    <p className="text-sm font-medium mb-2">Assistente</p>
+                    <div className="flex space-x-1">
+                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+            <div ref={messagesEndRef} />
+          </div>
+
+          {/* Message input area */}
+          <div className="p-4 border-t border-gray-200 bg-gray-50">
+            <div className="flex items-end space-x-3">
+              <div className="flex-1 relative">
+                <textarea
+                  ref={textareaRef}
+                  className="w-full resize-none p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white shadow-sm"
+                  rows="1"
+                  placeholder="Digite sua mensagem..."
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  style={{ minHeight: '44px' }}
+                />
+                <div className="absolute bottom-2 right-2 text-xs text-gray-400">
+                  {message.length}/1000
+                </div>
+              </div>
+              
+              <button
+                className={`px-6 py-3 rounded-xl font-medium text-white transition-all duration-200 flex items-center space-x-2 shadow-sm ${
+                  loading || !message.trim()
+                    ? 'bg-gray-400 cursor-not-allowed'
+                    : 'bg-blue-500 hover:bg-blue-600 hover:scale-105 hover:shadow-md'
+                }`}
+                onClick={handleSendMessage}
+                disabled={loading || !message.trim()}
+              >
+                {loading ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    <span className="hidden sm:inline">Enviando...</span>
+                  </>
+                ) : (
+                  <>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
+                      <path d="M3.478 2.405a.75.75 0 0 0-.926.94l2.432 7.905H13.5a.75.75 0 0 1 0 1.5H4.984l-2.432 7.905a.75.75 0 0 0 .926.94 60.543 60.543 0 0 0 18.445-8.986.75.75 0 0 0 0-1.218A60.543 60.543 0 0 0 3.478 2.405Z" />
+                    </svg>
+                    <span className="hidden sm:inline">Enviar</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Custom CSS for animations */}
+      <style jsx>{`
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        
+        .animate-fadeIn {
+          animation: fadeIn 0.3s ease-out forwards;
+        }
+        
+        @keyframes bounceYZ {
+          0%, 100% {
+            transform: translateY(0) scale(1);
+          }
+          50% {
+            transform: translateY(-5px) scale(1.05);
+          }
+        }
+        
+        .animate-bounceYZ {
+          animation: bounceYZ 2s ease-in-out infinite;
+        }
+      `}</style>
     </div>
   );
 }
