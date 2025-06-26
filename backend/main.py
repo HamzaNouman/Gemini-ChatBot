@@ -3,6 +3,7 @@ import google.generativeai as genai
 from flask_cors import CORS
 import os
 import json
+from utils.role_handler import RoleHandler
 
 app = Flask(__name__)
 
@@ -18,6 +19,9 @@ if not api_key:
 CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
 genai.configure(api_key=api_key)
 
+# Inicializar RoleHandler
+role_handler = RoleHandler()
+
 # --- Here we load and build a system instruction to JSON file ---
 def build_system_instruction(instruction_data: dict) -> str:
     """
@@ -26,47 +30,38 @@ def build_system_instruction(instruction_data: dict) -> str:
     for the generative AI model, including role definition, core rules, and advanced behaviors.
     """
     instruction_parts = []
+    
+    # Get the first system instruction from the 'sys' array
+    if "sys" in instruction_data and instruction_data["sys"]:
+        sys_instruction = instruction_data["sys"][0]  # Use the first instruction
+        
+        if "role_definition" in sys_instruction:
+            role = sys_instruction["role_definition"]
+            instruction_parts.append(f"{role.get('purpose', '')}")
 
-    if "role_definition" in instruction_data:
-        role = instruction_data["role_definition"]
-        instruction_parts.append(f"{role.get('purpose', '')}")
+        instruction_parts.append("\nIMPORTANT Rules:")
+        if "core_rules" in sys_instruction:
+            # Itera sobre as regras principais, adicionando-as e seus exemplos.
+            for key, rule_data in sys_instruction["core_rules"].items():
+                # Usa len(instruction_parts) para numerar as regras dinamicamente.
+                instruction_parts.append(f"{len(instruction_parts)}. {rule_data.get('title', key)}: {rule_data.get('instruction', '')}")
+                if "examples" in rule_data and rule_data["examples"]:
+                    instruction_parts.append("    Examples:")
+                    for example in rule_data["examples"]:
+                        instruction_parts.append(f"    - {example}")
 
-    instruction_parts.append("\nIMPORTANT Rules:")
-    if "core_rules" in instruction_data:
-        # Itera sobre as regras principais, adicionando-as e seus exemplos.
-        for key, rule_data in instruction_data["core_rules"].items():
-            # Usa len(instruction_parts) para numerar as regras dinamicamente.
-            instruction_parts.append(f"{len(instruction_parts)}. {rule_data.get('title', key)}: {rule_data.get('instruction', '')}")
-            if "examples" in rule_data and rule_data["examples"]:
-                instruction_parts.append("    Examples:")
-                for example in rule_data["examples"]:
-                    instruction_parts.append(f"    - {example}")
-
-    instruction_parts.append("\nAdvanced Behaviors:")
-    if "advanced_behaviors" in instruction_data:
-        # Itera sobre os comportamentos avançados.
-        for key, rule_data in instruction_data["advanced_behaviors"].items():
-            instruction_parts.append(f"{len(instruction_parts)}. {rule_data.get('title', key)}: {rule_data.get('instruction', '')}")
+        instruction_parts.append("\nAdvanced Behaviors:")
+        if "advanced_behaviors" in sys_instruction:
+            # Itera sobre os comportamentos avançados.
+            for key, rule_data in sys_instruction["advanced_behaviors"].items():
+                instruction_parts.append(f"{len(instruction_parts)}. {rule_data.get('title', key)}: {rule_data.get('instruction', '')}")
 
     return "\n".join(instruction_parts)
-
-# Carrega e constrói a instrução do sistema a partir de um arquivo JSON.
-# Inclui tratamento de erros para FileNotFoundError, JSONDecodeError e outros.
-@app.route("/answer", methods=["POST"])
-def answer():
-    data = request.get_json()
-    answer = data.get("answer", "No answer provided.")
-    setId = data.get("setId", "default_set")
-    with open(f"data/answers/{setId}.json", "w", encoding="utf-8") as f:
-        # Salva a resposta em um arquivo JSON, usando o setId como nome do arquivo.
-        json.dump({"answer": answer}, f, ensure_ascii=False, indent=2)
-        instruction_json_data = json.load(f)  # Lê o arquivo para garantir que foi salvo corretamente.
-    return jsonify({"status": "success", "received": {"answer": answer, "setId": setId}})
 
 try:
     with open("data/system_instruction.json", "r", encoding="utf-8") as f:
         instruction_json_data = json.load(f)
-    SYSTEM_INSTRUCTION_FOR_HAMZA_CHATBOT = build_system_instruction(answer.instruction_json_data)
+    SYSTEM_INSTRUCTION_FOR_HAMZA_CHATBOT = build_system_instruction(instruction_json_data)
 
     if not SYSTEM_INSTRUCTION_FOR_HAMZA_CHATBOT.strip():
         raise ValueError("System instruction built from JSON is empty.")
@@ -84,14 +79,6 @@ except Exception as e:
     # Fallback para qualquer outro erro.
     SYSTEM_INSTRUCTION_FOR_HAMZA_CHATBOT = "You are an AI assistant for Hamza's resume. Please provide relevant information."
 
-# Inicialização do modelo Gemini com a instrução do sistema.
-chat_model = genai.GenerativeModel(
-    "gemini-1.5-flash-latest",
-    system_instruction=SYSTEM_INSTRUCTION_FOR_HAMZA_CHATBOT
-)
-
-
-
 # --- Main Endpoint (POST /chat) ---
 @app.route("/chat", methods=["POST"])
 def chat():
@@ -99,10 +86,16 @@ def chat():
     data = request.get_json()
     question = data.get("question", "").strip()
     history = data.get("history", []) # O histórico é um array de {role: "user"|"model", parts: [{text: "..."}]}
+    role = data.get("role", "recruiter")  # NOVO: parâmetro role
 
     if not question:
         # Retorna erro se a pergunta estiver vazia.
         return jsonify({"answer": "Please provide your question."}), 400
+
+    # Validar role
+    if not role_handler.validate_role(role):
+        print(f"Warning: Invalid role '{role}', using default role 'recruiter'")
+        role = "recruiter"  # Fallback para role padrão
 
     try:
         # ---  Load the curriculo content---
@@ -121,6 +114,17 @@ def chat():
         except Exception as e:
             print(f"Error reading or processing 'data/curriculo.json': {e}")
             return jsonify({"answer": "An issue occurred while loading Hamza's résumé information. Please try again later."}), 500
+
+        # Gerar prompt personalizado baseado na role
+        personalized_system_instruction = role_handler.generate_role_prompt(
+            role, SYSTEM_INSTRUCTION_FOR_HAMZA_CHATBOT
+        )
+
+        # Inicializar modelo com prompt personalizado
+        chat_model = genai.GenerativeModel(
+            "gemini-1.5-flash-latest",
+            system_instruction=personalized_system_instruction
+        )
 
         # --- Here we prepare the historic (context) for Gemini---
         gemini_history = []
@@ -162,7 +166,29 @@ def chat():
         return jsonify({"answer": answer}), 500
 
     # Retorna a resposta do modelo como JSON.
-    return jsonify({"answer": answer})
+    return jsonify({"answer": answer, "role": role})
+
+# Novo endpoint para obter roles disponíveis
+@app.route("/roles", methods=["GET"])
+def get_roles():
+    """Retorna todas as roles disponíveis"""
+    try:
+        roles = role_handler.get_all_roles()
+        return jsonify({"roles": roles})
+    except Exception as e:
+        print(f"Error getting roles: {e}")
+        return jsonify({"roles": []}), 500
+
+# Novo endpoint para obter exemplos de perguntas
+@app.route("/roles/<role_id>/examples", methods=["GET"])
+def get_role_examples(role_id):
+    """Retorna exemplos de perguntas para uma role específica"""
+    try:
+        examples = role_handler.get_role_examples(role_id)
+        return jsonify({"examples": examples})
+    except Exception as e:
+        print(f"Error getting role examples: {e}")
+        return jsonify({"examples": []}), 500
 
 # --- Application execution ---
 if __name__ == "__main__":
