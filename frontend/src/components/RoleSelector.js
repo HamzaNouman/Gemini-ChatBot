@@ -19,7 +19,7 @@ const RoleSelector = ({ onRoleSelected, onBack }) => {
         onRoleSelected(roleId);
       }
     } catch (err) {
-      console.error('Erro ao selecionar role:', err);
+      console.error('Error selecting role:', err);
     } finally {
       setIsSelecting(false);
     }
@@ -63,7 +63,7 @@ const RoleSelector = ({ onRoleSelected, onBack }) => {
             onClick={() => window.location.reload()}
             className="bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 transition-colors duration-200 font-medium"
           >
-            Tentar Novamente
+            Try Again
           </button>
         </div>
       </div>
@@ -87,8 +87,8 @@ const RoleSelector = ({ onRoleSelected, onBack }) => {
                 </svg>
               </button>
               <div>
-                <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Escolha seu Perfil</h1>
-                <p className="text-gray-600 mt-1">Selecione como você gostaria de interagir com o assistente</p>
+                <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Choose your Profile</h1>
+                <p className="text-gray-600 mt-1">Select how you would like to interact with the assistant</p>
               </div>
             </div>
             
@@ -97,7 +97,7 @@ const RoleSelector = ({ onRoleSelected, onBack }) => {
                 <span className="text-2xl">{selectedRole.icon}</span>
                 <div>
                   <p className="text-sm font-medium text-blue-900">
-                    {selectedRole.name} selecionado
+                    {selectedRole.name} selected
                   </p>
                   <p className="text-xs text-blue-700">{selectedRole.description}</p>
                 </div>
@@ -162,11 +162,11 @@ const RoleSelector = ({ onRoleSelected, onBack }) => {
               {isSelecting ? (
                 <>
                   <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
-                  <span>Carregando...</span>
+                  <span>Loading...</span>
                 </>
               ) : (
                 <>
-                  <span className="mr-2">Continuar como</span>
+                  <span className="mr-2">Continue as</span>
                   <span className="text-xl mr-2">{selectedRole.icon}</span>
                   <span>{selectedRole.name}</span>
                 </>
@@ -179,10 +179,10 @@ const RoleSelector = ({ onRoleSelected, onBack }) => {
         <div className="mt-12 text-center">
           <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 max-w-2xl mx-auto">
             <div className="text-2xl mb-3">💡</div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Dica</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Tip</h3>
             <p className="text-gray-600 text-sm leading-relaxed">
-              Você pode trocar de perfil a qualquer momento durante a conversa. 
-              Cada perfil oferece uma experiência personalizada baseada no seu contexto.
+              You can switch between profiles at any time during a conversation.
+              Each profile offers a personalized experience based on your context.
             </p>
           </div>
         </div>

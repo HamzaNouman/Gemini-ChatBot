@@ -8,7 +8,7 @@ const RoleContext = createContext();
 export const useRole = () => {
   const context = useContext(RoleContext);
   if (!context) {
-    throw new Error('useRole deve ser usado dentro de um RoleProvider');
+    throw new Error('useRole must be used inside a RoleProvider');
   }
   return context;
 };
@@ -32,16 +32,16 @@ export const RoleProvider = ({ children }) => {
       if (response.ok) {
         const data = await response.json();
         setRoles(data.roles || []);
-        console.log('Roles carregadas do backend:', data.roles.length);
+        console.log('Roles loaded from the backend:', data.roles.length);
       } else {
         // Usar fallback se backend não estiver disponível
-        console.warn('Backend não disponível, usando roles de fallback');
+        console.warn('Backend not available, using fallback roles');
         setRoles(fallbackRoles);
       }
     } catch (err) {
-      console.warn('Erro ao carregar roles do backend, usando fallback:', err.message);
+      console.warn('Error loading roles from backend, using fallback:', err.message);
       setRoles(fallbackRoles);
-      setError('Não foi possível carregar as roles do servidor. Usando configuração local.');
+      setError('Unable to load roles from server. Using local configuration.');
     } finally {
       setLoading(false);
     }
@@ -59,9 +59,9 @@ export const RoleProvider = ({ children }) => {
       setSelectedRole(role);
       // Salvar no localStorage para persistência
       localStorage.setItem('selectedRole', JSON.stringify(role));
-      console.log('Role selecionada:', role.name);
+      console.log('Selected role:', role.name);
     } else {
-      console.error('Role não encontrada:', roleId);
+      console.error('Role not found:', roleId);
     }
   };
 
@@ -72,10 +72,10 @@ export const RoleProvider = ({ children }) => {
       if (saved) {
         const role = JSON.parse(saved);
         setSelectedRole(role);
-        console.log('Role carregada do localStorage:', role.name);
+        console.log('Role loaded from localStorage:', role.name);
       }
     } catch (err) {
-      console.warn('Erro ao carregar role do localStorage:', err);
+      console.warn('Error loading role from localStorage:', err);
     }
   };
 
