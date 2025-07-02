@@ -6,18 +6,17 @@
   "contact": {
     "email": "hamzanouman2009@gmail.com",
     "location": "Cairo, Egypt",
-    "github": "https://github.com/HamzaNouman",
-    "linkedin": "https://www.linkedin.com/in/hamzanouman"
+    "github": "https://github.com/HamzaNouman"
   },
 
   "skills": {
-    "programming_languages": ["Python", "JavaScript", "SQL"],
+    "programming_languages": ["Python", "JavaScript","C++"],
     "backend_frameworks": ["Flask", "Node.js (basic exposure)"],
     "frontend_frameworks": ["React", "TailwindCSS"],
     "databases": ["JSON-based (for knowledge management)"],
     "ai_ml_tools": ["Google Gemini API", "ChatGPT (API usage)", "TensorFlow (basic exposure)"],
     "devops_tools": ["Git", "GitHub", "Docker (basic exposure)"],
-    "development_tools": ["VS Code", "Postman", "Jira (familiarity)"],
+    "development_tools": ["VS Code", "Pycharm"],
     "concepts": ["REST APIs", "Object-Oriented Programming (OOP)", "Agile Methodologies (Scrum, Kanban - theoretical understanding)"]
   },
 

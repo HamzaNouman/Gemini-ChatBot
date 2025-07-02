@@ -270,7 +270,7 @@ function ChatWindow({ onBackToRoleSelect }) {
                     }`}
                   >
                     <p className="text-sm font-medium mb-1">
-                      {msg.sender === 'You' ? 'Você' : 'Assistente'}
+                      {msg.sender === 'You' ? 'You' : 'Assistant'}
                     </p>
                     <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.text}</p>
                   </div>
@@ -330,7 +330,7 @@ function ChatWindow({ onBackToRoleSelect }) {
                 className={`px-6 py-3 rounded-xl font-medium text-white transition-all duration-200 flex items-center space-x-2 shadow-sm ${
                   loading || !message.trim()
                     ? 'bg-gray-400 cursor-not-allowed'
-                    : 'bg-blue-500 hover:bg-blue-600 hover:scale-105 hover:shadow-md'
+                    : 'bg-blue-600 text-white text-left transition duration-300 ease-in-out hover:bg-black hover:shadow-[0_0_10px_#3b82f6]'
                 }`}
                 onClick={handleSendMessage}
                 disabled={loading || !message.trim()}
@@ -345,7 +345,7 @@ function ChatWindow({ onBackToRoleSelect }) {
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
                       <path d="M3.478 2.405a.75.75 0 0 0-.926.94l2.432 7.905H13.5a.75.75 0 0 1 0 1.5H4.984l-2.432 7.905a.75.75 0 0 0 .926.94 60.543 60.543 0 0 0 18.445-8.986.75.75 0 0 0 0-1.218A60.543 60.543 0 0 0 3.478 2.405Z" />
                     </svg>
-                    <span className="hidden sm:inline">To send</span>
+                    <span className="hidden sm:inline">Send</span>
                   </>
                 )}
               </button>

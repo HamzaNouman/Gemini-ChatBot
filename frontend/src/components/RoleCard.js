@@ -104,7 +104,7 @@ const RoleCard = ({ role, isSelected, onSelect, disabled = false }) => {
             ))}
             {role.focus_areas.length > 3 && (
               <span className="px-2 py-1 text-xs text-gray-500 bg-gray-100 rounded-full">
-                +{role.focus_areas.length - 3} mais
+                +{role.focus_areas.length - 3} more
               </span>
             )}
           </div>
