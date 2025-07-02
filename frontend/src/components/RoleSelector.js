@@ -43,8 +43,8 @@ const RoleSelector = ({ onRoleSelected, onBack }) => {
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center p-4">
         <div className="text-center max-w-md">
           <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-6"></div>
-          <h3 className="text-xl font-semibold text-gray-800 mb-2">Carregando perfis...</h3>
-          <p className="text-gray-600">Preparando as opções de interação para você</p>
+          <h3 className="text-xl font-semibold text-gray-800 mb-2">Loading profiles...</h3>
+          <p className="text-gray-600">Preparing interaction options for you</p>
         </div>
       </div>
     );
@@ -80,7 +80,7 @@ const RoleSelector = ({ onRoleSelected, onBack }) => {
               <button
                 onClick={handleBack}
                 className="text-gray-600 hover:text-gray-800 transition-colors duration-200 p-2 rounded-lg hover:bg-gray-100"
-                aria-label="Voltar"
+                aria-label="To go back"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />

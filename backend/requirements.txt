@@ -1,0 +1,6 @@
+flask
+google-generativeai
+google-cloud-aiplatform
+requests
+python-dotenv
+flask-cors

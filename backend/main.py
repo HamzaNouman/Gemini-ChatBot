@@ -3,16 +3,18 @@ import google.generativeai as genai
 from flask_cors import CORS
 import os
 import json
+from dotenv import load_dotenv
 from utils.role_handler import RoleHandler
 
 app = Flask(__name__)
+load_dotenv()
 
 # --- Initial configuration ---
 api_key = os.getenv("GEMINI_API_KEY")
 if not api_key:
     # Levanta um erro se a chave API não for encontrada, impedindo que o app inicie sem ela.
     raise ValueError("GEMINI_API_KEY not found in environment variables. "
-                     "Ensure it is in the .env file and you are running the script with `pipenv run`.")
+                 "Ensure it is in the .env file and you are running the script with `python main.py`.")
 
 # Configurações de CORS para permitir requisições do frontend (localhost:3000)
 # resources={r"/*": {"origins": "*"}} permite requisições de qualquer origem.
